@@ -3,22 +3,6 @@
   "name": "Gmail Tracker",
   "version": "1.0",
   "description": "Notifica cuando abren tu mail",
-  "permissions": ["storage"],
-  "host_permissions": [
-    "*://mail.google.com/*",
-    "https://gmail-tracker-api.onrender.com/*"
-  ],
-  "content_scripts": [
-    {
-      "matches": ["https://mail.google.com/*"],
-      "js": ["content.js"]
-    }
-  ]
-  
-  "manifest_version": 3,
-  "name": "Gmail Tracker",
-  "version": "1.0",
-  "description": "Notifica cuando abren tu mail",
   "permissions": ["storage", "notifications", "alarms"],
   "host_permissions": [
     "*://mail.google.com/*",

@@ -1,7 +1,8 @@
 const SERVIDOR = "https://gmail-tracker-api.onrender.com";
 
-// Cada 30 segundos consulta el servidor
-chrome.alarms.create("checkVistas", { periodInMinutes: 0.5 });
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.alarms.create("checkVistas", { periodInMinutes: 0.5 });
+});
 
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === "checkVistas") {
@@ -10,37 +11,48 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 });
 
 async function checkearVistas() {
-  try {
-    const response = await fetch(`${SERVIDOR}/registros`);
-    const data = await response.json();
-    const registrosRemotos = data.registros;
+  console.log("Chequeando vistas...");
 
-    // Traemos los mails que enviamos
-    chrome.storage.local.get("mails", (localData) => {
-      const mails = localData.mails || [];
+  chrome.storage.local.get("mails", async (localData) => {
+    const mails = localData.mails || [];
+    if (mails.length === 0) return;
+
+    try {
+      const response = await fetch(`${SERVIDOR}/registros`);
+      const data = await response.json();
+
+      let huboCambios = false;
 
       mails.forEach((mail) => {
-        if (mail.visto) return; // ya notificamos este
+        if (mail.visto) return;
 
-        const fueVisto = registrosRemotos.some(r => r.email_id === mail.id);
+        const hits = data.registros.filter(r => r.email_id === mail.id);
+        const enviado = new Date(mail.enviado);
+        const ahora = new Date();
+        const minutosDesdeEnvio = (ahora - enviado) / 1000 / 60;
 
-        if (fueVisto) {
+        console.log(`Mail ${mail.id} - hits: ${hits.length} - minutos desde envío: ${minutosDesdeEnvio.toFixed(1)}`);
+
+        // Esperamos 2 minutos antes de considerar cualquier hit como apertura real
+        if (hits.length >= 3 && minutosDesdeEnvio > 2) {
           mail.visto = true;
+          huboCambios = true;
 
-          chrome.notifications.create({
+          chrome.notifications.create(`notif-${mail.id}`, {
             type: "basic",
             iconUrl: "icon.png",
-            title: "📬 Tu mail fue abierto",
-            message: `ID: ${mail.id}`
+            title: "Tu mail fue abierto",
+            message: `Abierto el ${new Date(hits[0].timestamp).toLocaleString()}`
           });
         }
       });
 
-      // Actualizamos el storage con los mails marcados como vistos
-      chrome.storage.local.set({ mails });
-    });
+      if (huboCambios) {
+        chrome.storage.local.set({ mails });
+      }
 
-  } catch (e) {
-    console.log("Error chequeando vistas:", e);
-  }
+    } catch (e) {
+      console.log("Error:", e.message);
+    }
+  });
 }

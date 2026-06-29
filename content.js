@@ -1,6 +1,6 @@
 console.log("Gmail Tracker Activo!");
 
-const SERVIDOR = "http://localhost:5000";
+const SERVIDOR = "https://gmail-tracker-api.onrender.com";
 
 function generarId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2);

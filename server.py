@@ -1,10 +1,12 @@
 from flask import Flask, request, send_file
+from flask_cors import CORS
 import io
 import datetime
 
 app = Flask(__name__)
+CORS(app)  # esto es lo nuevo
 
-registros = []  # por ahora guardamos en memoria, después lo mejoramos
+registros = []
 
 @app.route("/track/<email_id>")
 def track(email_id):
@@ -16,7 +18,6 @@ def track(email_id):
     registros.append(registro)
     print(f"👁️  Mail abierto: {registro}")
 
-    # Devuelve una imagen 1x1 transparente
     pixel = bytes([
         71,73,70,56,57,97,1,0,1,0,128,0,0,
         0,0,0,255,255,255,33,249,4,0,0,0,0,

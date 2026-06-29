@@ -1,0 +1,2 @@
+Bash
+pip freeze > requirements.txt

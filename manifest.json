@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Gmail Tracker",
+  "version": "1.0",
+  "description": "Notifica cuando abren tu mail",
+  "permissions": ["storage"],
+  "host_permissions": ["*://mail.google.com/*", "http://localhost:5000/*"],
+  "content_scripts": [
+    {
+      "matches": ["https://mail.google.com/*"],
+      "js": ["content.js"]
+    }
+  ]
+}
